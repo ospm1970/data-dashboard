@@ -1,4 +1,5 @@
-import sqlite3 from 'sqlite3';
+import initSqlJs from 'sql.js';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -6,24 +7,32 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = path.join(__dirname, 'auth.db');
 
 let db = null;
+let SQL = null;
 
-export function initializeDatabase() {
-  return new Promise((resolve, reject) => {
-    db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) {
-        console.error('❌ Database connection error:', err);
-        reject(err);
-      } else {
-        console.log('✅ Database initialized');
-        createTables();
-        resolve();
-      }
-    });
-  });
+export async function initializeDatabase() {
+  try {
+    SQL = await initSqlJs();
+    
+    // Carregar banco de dados existente ou criar novo
+    let data = null;
+    if (fs.existsSync(DB_PATH)) {
+      data = fs.readFileSync(DB_PATH);
+    }
+    
+    db = new SQL.Database(data);
+    console.log('✅ Database initialized');
+    
+    await createTables();
+    saveDatabase();
+    return db;
+  } catch (err) {
+    console.error('❌ Database connection error:', err);
+    throw err;
+  }
 }
 
-function createTables() {
-  db.serialize(() => {
+async function createTables() {
+  try {
     // Users table (Authentication)
     db.run(`
       CREATE TABLE IF NOT EXISTS users (
@@ -108,7 +117,21 @@ function createTables() {
       (3, 1, 3, 1, 150.00, 'completed'),
       (4, 1, 4, 1, 800.00, 'pending')
     `);
-  });
+  } catch (err) {
+    console.error('❌ Error creating tables:', err);
+  }
+}
+
+function saveDatabase() {
+  try {
+    if (db) {
+      const data = db.export();
+      const buffer = Buffer.from(data);
+      fs.writeFileSync(DB_PATH, buffer);
+    }
+  } catch (err) {
+    console.error('❌ Error saving database:', err);
+  }
 }
 
 export function getDatabase() {
@@ -116,45 +139,63 @@ export function getDatabase() {
 }
 
 export function runQuery(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function(err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ id: this.lastID, changes: this.changes });
-      }
-    });
-  });
+  try {
+    const stmt = db.prepare(sql);
+    if (params.length > 0) {
+      stmt.bind(params);
+    }
+    stmt.step();
+    stmt.free();
+    saveDatabase();
+    return { id: null, changes: 1 };
+  } catch (err) {
+    console.error('❌ Query error:', err);
+    throw err;
+  }
 }
 
 export function getQuery(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(row);
-      }
-    });
-  });
+  try {
+    const stmt = db.prepare(sql);
+    if (params.length > 0) {
+      stmt.bind(params);
+    }
+    
+    let row = null;
+    if (stmt.step()) {
+      row = stmt.getAsObject();
+    }
+    stmt.free();
+    return row;
+  } catch (err) {
+    console.error('❌ Query error:', err);
+    throw err;
+  }
 }
 
 export function allQuery(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows || []);
-      }
-    });
-  });
+  try {
+    const stmt = db.prepare(sql);
+    if (params.length > 0) {
+      stmt.bind(params);
+    }
+    
+    const rows = [];
+    while (stmt.step()) {
+      rows.push(stmt.getAsObject());
+    }
+    stmt.free();
+    return rows || [];
+  } catch (err) {
+    console.error('❌ Query error:', err);
+    throw err;
+  }
 }
 
 // Dashboard query functions
 export async function getAllTables() {
   try {
-    const result = await allQuery(`
+    const result = allQuery(`
       SELECT name FROM sqlite_master 
       WHERE type='table' AND name NOT LIKE 'sqlite_%'
     `);
@@ -167,7 +208,7 @@ export async function getAllTables() {
 
 export async function getTableSchema(tableName) {
   try {
-    const result = await allQuery(`PRAGMA table_info(${tableName})`);
+    const result = allQuery(`PRAGMA table_info(${tableName})`);
     return result;
   } catch (error) {
     console.error('❌ Error getting table schema:', error);
@@ -177,7 +218,7 @@ export async function getTableSchema(tableName) {
 
 export async function queryDatabase(sql) {
   try {
-    const result = await allQuery(sql);
+    const result = allQuery(sql);
     return result;
   } catch (error) {
     console.error('❌ Database query error:', error);
