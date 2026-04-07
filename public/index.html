@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manus DevAgents MVP - Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+
+    .status.running {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status.completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.failed {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th {
+      background: #f5f5f5;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #ddd;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      color: #666;
+    }
+
+    tr:hover {
+      background: #f9f9f9;
+    }
+
+    .refresh-info {
+      color: #999;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-box .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-box .label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    /* Pipeline Progress Styles */
+    .pipeline-progress {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+
+    .pipeline-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 30px 0;
+    }
+
+    .pipeline-steps::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #ddd;
+      z-index: 0;
+    }
+
+    .pipeline-step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pipeline-step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ddd;
+      border: 3px solid white;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .pipeline-step.pending .pipeline-step-circle {
+      background: #ddd;
+      color: #999;
+    }
+
+    .pipeline-step.running .pipeline-step-circle {
+      background: #fff3cd;
+      color: #856404;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .pipeline-step.completed .pipeline-step-circle {
+      background: #28a745;
+      color: white;
+    }
+
+    .pipeline-step.failed .pipeline-step-circle {
+      background: #dc3545;
+      color: white;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+      }
+    }
+
+    .pipeline-step-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    .pipeline-step.running .pipeline-step-label {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .pipeline-step.completed .pipeline-step-label {
+      color: #28a745;
+    }
+
+    .pipeline-logs {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+
+    .pipeline-log-entry {
+      margin-bottom: 8px;
+      padding: 5px;
+      border-left: 3px solid #ddd;
+      padding-left: 10px;
+    }
+
+    .pipeline-log-entry.info {
+      border-left-color: #667eea;
+      color: #667eea;
+    }
+
+    .pipeline-log-entry.success {
+      border-left-color: #28a745;
+      color: #28a745;
+    }
+
+    .pipeline-log-entry.error {
+      border-left-color: #dc3545;
+      color: #dc3545;
+    }
+
+    .pipeline-log-entry.warning {
+      border-left-color: #ffc107;
+      color: #856404;
+    }
+
+    .pipeline-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+
+    .pipeline-info-item {
+      font-size: 13px;
+    }
+
+    .pipeline-info-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .pipeline-info-value {
+      color: #666;
+      margin-top: 3px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .doc-link {
+      display: inline-block;
+      padding: 8px 12px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .doc-link:hover {
+      background: #764ba2;
+    }
+
+    .doc-link.readme {
+      background: #28a745;
+    }
+
+    .doc-link.readme:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 Manus DevAgents MVP</h1>
+      <p class="subtitle">AI-Powered Development Pipeline Dashboard</p>
+    </header>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="value" id="totalRows">0</div>
+        <div class="label">Total Rows</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="lastRefresh">--:--</div>
+        <div class="label">Last Refresh</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="nextRefresh">5:00</div>
+        <div class="label">Next Refresh</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Left Column: Dashboard Query -->
+      <div class="card">
+        <h2>📊 Dashboard Query</h2>
+        <div class="form-group">
+          <label for="requirement">What data do you want to see?</label>
+          <textarea id="requirement" placeholder="e.g., Show all users with their recent orders"></textarea>
+        </div>
+        <button onclick="generateDashboard()">Generate Dashboard</button>
+        <div id="dashboardStatus"></div>
+      </div>
+
+      <!-- Right Column: Pipeline Execution -->
+      <div class="card">
+        <h2>⚙️ Execute Pipeline</h2>
+        <div class="form-group">
+          <label for="pipelineRequirement">Feature Requirement</label>
+          <textarea id="pipelineRequirement" placeholder="e.g., Create a user authentication system"></textarea>
+        </div>
+        <button onclick="executePipeline()" id="executePipelineBtn">Execute Pipeline</button>
+        <div id="pipelineStatus"></div>
+      </div>
+    </div>
+
+    <!-- Pipeline Progress Monitor -->
+    <div class="pipeline-progress hidden" id="pipelineProgressContainer">
+      <h2>📈 Pipeline Execution Progress</h2>
+      
+      <div class="pipeline-steps" id="pipelineSteps">
+        <div class="pipeline-step pending" data-stage="specification">
+          <div class="pipeline-step-circle">0</div>
+          <div class="pipeline-step-label">Specification</div>
+        </div>
+        <div class="pipeline-step pending" data-stage="analysis">
+          <div class="pipeline-step-circle">1</div>
+          <div class="pipeline-step-label">Analysis</div>
+        </div>
+        <div class="pipeline-step pending" data-stage="ux_design">
+          <div class="pipeline-step-circle">2</div>
+          <div class="pipeline-step-label">UI/UX Design</div>
+        </div>
+        <div class="pipeline-step pending" data-stage="development">
+          <div class="pipeline-step-circle">3</div>
+          <div class="pipeline-step-label">Development</div>
+        </div>
+        <div class="pipeline-step pending" data-stage="qa">
+          <div class="pipeline-step-circle">4</div>
+          <div class="pipeline-step-label">QA/Testing</div>
+        </div>
+        <div class="pipeline-step pending" data-stage="devops">
+          <div class="pipeline-step-circle">5</div>
+          <div class="pipeline-step-label">DevOps</div>
+        </div>
+      </div>
+
+      <div class="pipeline-info" id="pipelineInfo">
+        <div class="pipeline-info-item">
+          <div class="pipeline-info-label">Pipeline ID</div>
+          <div class="pipeline-info-value" id="pipelineId">--</div>
+        </div>
+        <div class="pipeline-info-item">
+          <div class="pipeline-info-label">Status</div>
+          <div class="pipeline-info-value" id="pipelineStatusValue">--</div>
+        </div>
+        <div class="pipeline-info-item">
+          <div class="pipeline-info-label">Elapsed Time</div>
+          <div class="pipeline-info-value" id="pipelineElapsedTime">0s</div>
+        </div>
+        <div class="pipeline-info-item">
+          <div class="pipeline-info-label">Current Stage</div>
+          <div class="pipeline-info-value" id="pipelineCurrentStage">--</div>
+        </div>
+      </div>
+
+      <div class="pipeline-logs" id="pipelineLogs">
+        <div class="pipeline-log-entry info">⏳ Aguardando início da execução...</div>
+      </div>
+      
+      <!-- Documentation Links -->
+      <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 5px; border-left: 4px solid #667eea;">
+        <h3 style="color: #667eea; margin-bottom: 10px;">📚 Documentação Gerada</h3>
+        <div id="documentationLinks" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+          <p style="color: #666; font-size: 13px;">Documentação será gerada após conclusão do pipeline...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Results -->
+    <div class="card full-width">
+      <h2>📈 Data Dashboard</h2>
+      <div class="table-container">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>No data yet</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="refresh-info">
+        ⏱️ Auto-refresh every 5 minutes
+        <br>
+        Last updated: <span id="lastUpdated">Never</span>
+      </div>
+    </div>
+
+    <!-- Pipeline History -->
+    <div class="card full-width" style="margin-top: 20px;">
+      <h2>📋 Pipeline Execution History</h2>
+      <div class="table-container">
+        <table id="pipelineTable">
+          <thead>
+            <tr>
+              <th>Pipeline ID</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th>Duration</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let refreshInterval;
+    let countdownInterval;
+    let currentQuery = 'SELECT * FROM users LIMIT 10';
+    let pipelinePollingInterval;
+    let pipelineStartTime;
+    let processedLogs = new Set();
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInitialData();
+      startAutoRefresh();
+    });
+
+    async function loadInitialData() {
+      try {
+        const response = await fetch('/api/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql: currentQuery })
+        });
+
+        const result = await response.json();
+        displayData(result.data);
+        updateStats(result.data.length);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+
+    async function generateDashboard() {
+      const requirement = document.getElementById('requirement').value;
+      
+      if (!requirement) {
+        showError('dashboardStatus', 'Please enter a requirement');
+        return;
+      }
+
+      const statusDiv = document.getElementById('dashboardStatus');
+      statusDiv.innerHTML = '<div class="loading"></div> Generating dashboard...';
+
+      try {
+        const response = await fetch('/api/dashboard/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requirement })
+        });
+
+        const result = await response.json();
+        
+        if (result.error) {
+          showError('dashboardStatus', result.error);
+          return;
+        }
+
+        currentQuery = result.query;
+        displayData(result.data);
+        updateStats(result.data.length);
+        showSuccess('dashboardStatus', `✅ Dashboard generated! (${result.rowCount} rows)`);
+      } catch (error) {
+        showError('dashboardStatus', error.message);
+      }
+    }
+
+    async function executePipeline() {
+      const requirement = document.getElementById('pipelineRequirement').value;
+      
+      if (!requirement) {
+        showError('pipelineStatus', 'Please enter a requirement');
+        return;
+      }
+
+      const statusDiv = document.getElementById('pipelineStatus');
+      statusDiv.innerHTML = '<div class="loading"></div> Executing pipeline...';
+      
+      // Mostrar container de progresso
+      const progressContainer = document.getElementById('pipelineProgressContainer');
+      progressContainer.classList.remove('hidden');
+      
+      // Resetar UI
+      resetPipelineProgress();
+      pipelineStartTime = Date.now();
+      processedLogs.clear();
+
+      try {
+        const response = await fetch('/api/pipeline/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requirement })
+        });
+
+        const result = await response.json();
+        
+        if (result.error) {
+          showError('pipelineStatus', result.error);
+          addPipelineLog('error', `Erro: ${result.error}`);
+          return;
+        }
+
+        // Armazenar ID do pipeline
+        const pipelineId = result.id;
+        document.getElementById('pipelineId').textContent = pipelineId;
+        
+        showSuccess('pipelineStatus', `✅ Pipeline iniciado! ID: ${pipelineId}`);
+        addPipelineLog('success', `Pipeline iniciado com ID: ${pipelineId}`);
+        
+        // Começar a monitorar progresso
+        monitorPipelineProgress(pipelineId);
+        
+        // Desabilitar botão durante execução
+        document.getElementById('executePipelineBtn').disabled = true;
+      } catch (error) {
+        showError('pipelineStatus', error.message);
+        addPipelineLog('error', `Erro: ${error.message}`);
+      }
+    }
+
+    function resetPipelineProgress() {
+      // Resetar todos os steps para pending
+      document.querySelectorAll('.pipeline-step').forEach(step => {
+        step.className = 'pipeline-step pending';
+      });
+      
+      // Limpar logs
+      document.getElementById('pipelineLogs').innerHTML = '';
+      addPipelineLog('info', '⏳ Iniciando execução do pipeline...');
+    }
+
+    function monitorPipelineProgress(pipelineId) {
+      // Limpar polling anterior se existir
+      if (pipelinePollingInterval) {
+        clearInterval(pipelinePollingInterval);
+      }
+
+      // Atualizar a cada 1 segundo (mais rápido)
+      pipelinePollingInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/pipeline/${pipelineId}`);
+          const result = await response.json();
+          
+          if (result) {
+            const execution = result.execution || result;
+            updatePipelineUI(execution);
+            
+            // Se completado, parar polling
+            if (execution.status === 'completed' || execution.status === 'failed') {
+              clearInterval(pipelinePollingInterval);
+              document.getElementById('executePipelineBtn').disabled = false;
+              loadPipelineHistory();
+              loadDocumentation(pipelineId);
+            }
+          }
+        } catch (error) {
+          console.error('Error monitoring pipeline:', error);
+        }
+      }, 1000);
+    }
+
+    function updatePipelineUI(execution) {
+      // Atualizar status geral
+      document.getElementById('pipelineStatusValue').textContent = execution.status.toUpperCase();
+      
+      // Atualizar tempo decorrido
+      const elapsedSeconds = Math.floor((Date.now() - pipelineStartTime) / 1000);
+      const minutes = Math.floor(elapsedSeconds / 60);
+      const seconds = elapsedSeconds % 60;
+      document.getElementById('pipelineElapsedTime').textContent = 
+        `${minutes}m ${seconds}s`;
+      
+      // Processar todos os logs
+      if (execution.logs && Array.isArray(execution.logs)) {
+        execution.logs.forEach(log => {
+          const logKey = `${log.timestamp}-${log.message}`;
+          if (!processedLogs.has(logKey)) {
+            processedLogs.add(logKey);
+            const level = log.level || 'info';
+            addPipelineLog(level, log.message);
+          }
+        });
+      }
+      
+      // Atualizar stages
+      if (execution.stages) {
+        Object.keys(execution.stages).forEach(stageName => {
+          const stage = execution.stages[stageName];
+          const stepElement = document.querySelector(`[data-stage="${stageName}"]`);
+          
+          if (stepElement) {
+            // Remover classes anteriores
+            stepElement.className = 'pipeline-step';
+            
+            if (stage.status === 'completed') {
+              stepElement.classList.add('completed');
+            } else if (stage.status === 'running') {
+              stepElement.classList.add('running');
+              document.getElementById('pipelineCurrentStage').textContent = formatStageName(stageName);
+            } else {
+              stepElement.classList.add('pending');
+            }
+          }
+        });
+      }
+    }
+
+    function formatStageName(stageName) {
+      const names = {
+        'specification': 'Especificação',
+        'analysis': 'Análise',
+        'ux_design': 'Design UI/UX',
+        'development': 'Desenvolvimento',
+        'qa': 'QA/Testes',
+        'deployment': 'DevOps'
+      };
+      return names[stageName] || stageName;
+    }
+
+    function addPipelineLog(level, message) {
+      const logsContainer = document.getElementById('pipelineLogs');
+      const entry = document.createElement('div');
+      entry.className = `pipeline-log-entry ${level}`;
+      entry.textContent = `[${new Date().toLocaleTimeString('pt-BR')}] ${message}`;
+      logsContainer.appendChild(entry);
+      
+      // Auto-scroll para o final
+      logsContainer.scrollTop = logsContainer.scrollHeight;
+    }
+
+    async function loadDocumentation(pipelineId) {
+      try {
+        const response = await fetch(`/api/documentation/${pipelineId}`);
+        const result = await response.json();
+        
+        if (result.documentationFiles && result.documentationFiles.length > 0) {
+          const docsContainer = document.getElementById('documentationLinks');
+          docsContainer.innerHTML = '';
+          
+          result.documentationFiles.forEach(file => {
+            const link = document.createElement('a');
+            link.href = `/docs/${pipelineId}/${file}`;
+            link.target = '_blank';
+            link.className = file === 'README.md' ? 'doc-link readme' : 'doc-link';
+            const label = file === 'README.md' ? '📋 Índice' : '📄 ' + file.replace('.md', '');
+            link.textContent = label;
+            docsContainer.appendChild(link);
+          });
+          
+          addPipelineLog('success', `✅ Documentação gerada: ${result.documentationFiles.length} arquivos`);
+        }
+      } catch (error) {
+        console.error('Error loading documentation:', error);
+      }
+    }
+
+    async function loadPipelineHistory() {
+      try {
+        const response = await fetch('/api/pipeline');
+        const result = await response.json();
+        
+        const tbody = document.querySelector('#pipelineTable tbody');
+        tbody.innerHTML = '';
+
+        result.executions.forEach(execution => {
+          const row = document.createElement('tr');
+          const duration = execution.completedAt 
+            ? `${((new Date(execution.completedAt) - new Date(execution.createdAt)) / 1000).toFixed(1)}s`
+            : 'Running...';
+          
+          row.innerHTML = `
+            <td>${execution.id}</td>
+            <td><span class="status ${execution.status}">${execution.status.toUpperCase()}</span></td>
+            <td>${new Date(execution.createdAt).toLocaleString('pt-BR')}</td>
+            <td>${duration}</td>
+            <td><button onclick="viewPipeline('${execution.id}')">View</button></td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading pipeline history:', error);
+      }
+    }
+
+    function viewPipeline(pipelineId) {
+      alert('Pipeline details: ' + pipelineId + '\n\nOpen browser console to see full details.');
+      fetch(`/api/pipeline/${pipelineId}`)
+        .then(r => r.json())
+        .then(data => console.log('Pipeline:', data));
+    }
+
+    function displayData(data) {
+      const table = document.getElementById('dataTable');
+      const tbody = table.querySelector('tbody');
+      
+      if (!data || data.length === 0) {
+        table.innerHTML = '<tr><td>No data available</td></tr>';
+        return;
+      }
+
+      // Create header
+      const headers = Object.keys(data[0]);
+      const thead = table.querySelector('thead');
+      thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+      // Create body
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = headers.map(h => `<td>${row[h]}</td>`).join('');
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateStats(rowCount) {
+      document.getElementById('totalRows').textContent = rowCount;
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('pt-BR');
+      document.getElementById('lastRefresh').textContent = new Date().toLocaleTimeString('pt-BR');
+    }
+
+    function startAutoRefresh() {
+      // Refresh every 5 minutes
+      refreshInterval = setInterval(() => {
+        loadInitialData();
+      }, 5 * 60 * 1000);
+
+      // Update countdown
+      startCountdown();
+    }
+
+    function startCountdown() {
+      let seconds = 300; // 5 minutes
+      countdownInterval = setInterval(() => {
+        seconds--;
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        document.getElementById('nextRefresh').textContent = 
+          `${mins}:${secs.toString().padStart(2, '0')}`;
+        
+        if (seconds <= 0) {
+          clearInterval(countdownInterval);
+          startCountdown();
+        }
+      }, 1000);
+    }
+
+    function showError(elementId, message) {
+      document.getElementById(elementId).innerHTML = `<div class="error">❌ ${message}</div>`;
+    }
+
+    function showSuccess(elementId, message) {
+      document.getElementById(elementId).innerHTML = `<div class="success">${message}</div>`;
+    }
+
+    // Load pipeline history on startup
+    loadPipelineHistory();
+  </script>
+</body>
+</html>
