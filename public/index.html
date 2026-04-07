@@ -15,15 +15,12 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
     }
 
     .container {
-      width: 100%;
-      max-width: 400px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .card {
@@ -31,6 +28,13 @@
       border-radius: 10px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       padding: 40px;
+      margin-bottom: 20px;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
     }
 
     .header {
@@ -61,19 +65,25 @@
       font-size: 14px;
     }
 
-    input {
+    input, textarea, select {
       width: 100%;
       padding: 12px;
       border: 1px solid #ddd;
       border-radius: 5px;
       font-size: 14px;
       transition: border-color 0.3s;
+      font-family: inherit;
     }
 
-    input:focus {
+    input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
     }
 
     .button-group {
@@ -104,6 +114,21 @@
       box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
 
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 12px;
+      flex: none;
+    }
+
     .message {
       padding: 12px;
       border-radius: 5px;
@@ -123,6 +148,13 @@
       background: #f8d7da;
       color: #721c24;
       border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
       display: block;
     }
 
@@ -168,11 +200,13 @@
 
     .dashboard-header {
       margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .dashboard-header h2 {
       color: #333;
-      margin-bottom: 10px;
     }
 
     .user-info {
@@ -190,137 +224,315 @@
 
     .stats {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 15px;
-      margin-top: 20px;
+      margin-bottom: 30px;
     }
 
     .stat-card {
-      background: #f9f9f9;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
       padding: 20px;
       border-radius: 5px;
       text-align: center;
     }
 
     .stat-card h3 {
-      color: #667eea;
       font-size: 24px;
       margin-bottom: 5px;
     }
 
     .stat-card p {
-      color: #999;
       font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .query-section {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .query-section h3 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .query-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .query-tab-btn {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #999;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .query-tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .query-tab-content {
+      display: none;
+    }
+
+    .query-tab-content.active {
+      display: block;
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: white;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .results-table thead {
+      background: #f0f0f0;
+    }
+
+    .results-table th,
+    .results-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .results-table th {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .results-table tbody tr:hover {
+      background: #f9f9f9;
+    }
+
+    .no-results {
+      text-align: center;
+      color: #999;
+      padding: 20px;
     }
 
     .logout-btn {
-      width: 100%;
-      padding: 12px;
+      width: auto;
+      padding: 12px 24px;
       background: #dc3545;
       color: white;
       border: none;
       border-radius: 5px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 20px;
     }
 
     .logout-btn:hover {
       background: #c82333;
+    }
+
+    .loading {
+      text-align: center;
+      color: #667eea;
+      padding: 20px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .query-info {
+      background: #e8f4f8;
+      padding: 12px;
+      border-radius: 5px;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #0c5460;
+    }
+
+    .query-info strong {
+      color: #004085;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 20px;
+      }
+
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .results-table {
+        font-size: 12px;
+      }
+
+      .results-table th,
+      .results-table td {
+        padding: 8px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- Login/Register Section -->
-    <div id="authSection" class="card">
-      <div class="header">
-        <h1>📊 Data Dashboard</h1>
-        <p>Sistema de Autenticação</p>
-      </div>
+    <div id="authSection" class="auth-container">
+      <div class="card">
+        <div class="header">
+          <h1>📊 Data Dashboard</h1>
+          <p>Sistema de Autenticação e Consultas</p>
+        </div>
 
-      <div id="message" class="message"></div>
+        <div id="message" class="message"></div>
 
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-        <button class="tab-btn" onclick="switchTab('register')">Registrar</button>
-      </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+          <button class="tab-btn" onclick="switchTab('register')">Registrar</button>
+        </div>
 
-      <!-- Login Tab -->
-      <div id="login" class="tab-content active">
-        <form onsubmit="handleLogin(event)">
-          <div class="form-group">
-            <label for="login-username">Usuário</label>
-            <input type="text" id="login-username" required>
-          </div>
-          <div class="form-group">
-            <label for="login-password">Senha</label>
-            <input type="password" id="login-password" required>
-          </div>
-          <div class="button-group">
-            <button type="submit" class="btn-primary">Entrar</button>
-          </div>
-        </form>
-      </div>
+        <!-- Login Tab -->
+        <div id="login" class="tab-content active">
+          <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label for="login-username">Usuário</label>
+              <input type="text" id="login-username" required>
+            </div>
+            <div class="form-group">
+              <label for="login-password">Senha</label>
+              <input type="password" id="login-password" required>
+            </div>
+            <div class="button-group">
+              <button type="submit" class="btn-primary">Entrar</button>
+            </div>
+          </form>
+        </div>
 
-      <!-- Register Tab -->
-      <div id="register" class="tab-content">
-        <form onsubmit="handleRegister(event)">
-          <div class="form-group">
-            <label for="register-username">Usuário</label>
-            <input type="text" id="register-username" required>
-          </div>
-          <div class="form-group">
-            <label for="register-email">Email</label>
-            <input type="email" id="register-email" required>
-          </div>
-          <div class="form-group">
-            <label for="register-password">Senha</label>
-            <input type="password" id="register-password" required>
-          </div>
-          <div class="form-group">
-            <label for="register-confirm">Confirmar Senha</label>
-            <input type="password" id="register-confirm" required>
-          </div>
-          <div class="button-group">
-            <button type="submit" class="btn-primary">Registrar</button>
-          </div>
-        </form>
+        <!-- Register Tab -->
+        <div id="register" class="tab-content">
+          <form onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label for="register-username">Usuário</label>
+              <input type="text" id="register-username" required>
+            </div>
+            <div class="form-group">
+              <label for="register-email">Email</label>
+              <input type="email" id="register-email" required>
+            </div>
+            <div class="form-group">
+              <label for="register-password">Senha</label>
+              <input type="password" id="register-password" required>
+            </div>
+            <div class="form-group">
+              <label for="register-confirm">Confirmar Senha</label>
+              <input type="password" id="register-confirm" required>
+            </div>
+            <div class="button-group">
+              <button type="submit" class="btn-primary">Registrar</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
     <!-- Dashboard Section -->
-    <div id="dashboardSection" class="card dashboard">
-      <div class="dashboard-header">
-        <h2>Bem-vindo ao Dashboard!</h2>
-        <div class="user-info">
-          <p><strong>Usuário:</strong> <span id="dashboard-username"></span></p>
-          <p><strong>Email:</strong> <span id="dashboard-email"></span></p>
-          <p><strong>Perfil:</strong> <span id="dashboard-role"></span></p>
+    <div id="dashboardSection" class="dashboard">
+      <div class="card">
+        <div class="dashboard-header">
+          <div>
+            <h2>Bem-vindo ao Dashboard!</h2>
+            <div class="user-info">
+              <p><strong>Usuário:</strong> <span id="dashboard-username"></span></p>
+              <p><strong>Email:</strong> <span id="dashboard-email"></span></p>
+              <p><strong>Perfil:</strong> <span id="dashboard-role"></span></p>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="handleLogout()">Sair</button>
+        </div>
+
+        <h3>Estatísticas do Sistema</h3>
+        <div class="stats">
+          <div class="stat-card">
+            <h3 id="stat-tables">0</h3>
+            <p>Tabelas</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="stat-products">0</h3>
+            <p>Produtos</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="stat-orders">0</h3>
+            <p>Pedidos</p>
+          </div>
+          <div class="stat-card">
+            <h3>✅</h3>
+            <p>Status</p>
+          </div>
         </div>
       </div>
 
-      <h3>Estatísticas</h3>
-      <div class="stats">
-        <div class="stat-card">
-          <h3>150</h3>
-          <p>Usuários</p>
+      <!-- Query Section -->
+      <div class="card">
+        <div class="query-section">
+          <h3>🔍 Consultas de Dados</h3>
+          
+          <div class="query-tabs">
+            <button class="query-tab-btn active" onclick="switchQueryTab('natural')">Linguagem Natural</button>
+            <button class="query-tab-btn" onclick="switchQueryTab('sql')">SQL Direto</button>
+          </div>
+
+          <!-- Natural Language Query Tab -->
+          <div id="natural" class="query-tab-content active">
+            <div class="form-group">
+              <label for="natural-query">Descreva sua consulta em português:</label>
+              <textarea id="natural-query" placeholder="Ex: Mostrar todos os produtos com preço maior que 100&#10;Ex: Contar quantos pedidos estão pendentes&#10;Ex: Listar produtos ordenados por preço descendente"></textarea>
+            </div>
+            <button class="btn-primary" onclick="executeNaturalQuery()">Executar Consulta</button>
+            <div id="natural-results"></div>
+          </div>
+
+          <!-- SQL Query Tab -->
+          <div id="sql" class="query-tab-content">
+            <div class="form-group">
+              <label for="sql-query">Digite sua consulta SQL:</label>
+              <textarea id="sql-query" placeholder="Ex: SELECT * FROM products WHERE price > 100 LIMIT 10"></textarea>
+            </div>
+            <button class="btn-primary" onclick="executeSQLQuery()">Executar Query</button>
+            <div id="sql-results"></div>
+          </div>
         </div>
-        <div class="stat-card">
-          <h3>1.2K</h3>
-          <p>Dados</p>
-        </div>
-        <div class="stat-card">
-          <h3>89</h3>
-          <p>Consultas</p>
-        </div>
-        <div class="stat-card">
-          <h3>98%</h3>
-          <p>Uptime</p>
+
+        <!-- Available Tables -->
+        <div class="query-section">
+          <h3>📋 Tabelas Disponíveis</h3>
+          <div id="tables-list"></div>
         </div>
       </div>
-
-      <button class="logout-btn" onclick="handleLogout()">Sair</button>
     </div>
   </div>
 
@@ -332,6 +544,7 @@
       const token = localStorage.getItem('authToken');
       if (token) {
         showDashboard(JSON.parse(localStorage.getItem('userData')));
+        loadDashboardData();
       }
     });
 
@@ -341,6 +554,13 @@
       document.getElementById(tab).classList.add('active');
       event.target.classList.add('active');
       hideMessage();
+    }
+
+    function switchQueryTab(tab) {
+      document.querySelectorAll('.query-tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.query-tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      event.target.classList.add('active');
     }
 
     function showMessage(text, type) {
@@ -376,7 +596,10 @@
         localStorage.setItem('authToken', data.user.token);
         localStorage.setItem('userData', JSON.stringify(data.user));
         showMessage('Login realizado com sucesso!', 'success');
-        setTimeout(() => showDashboard(data.user), 1000);
+        setTimeout(() => {
+          showDashboard(data.user);
+          loadDashboardData();
+        }, 1000);
       } catch (error) {
         showMessage('Erro ao conectar ao servidor', 'error');
       }
@@ -429,6 +652,138 @@
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
       location.reload();
+    }
+
+    async function loadDashboardData() {
+      try {
+        // Load statistics
+        const dashboardResponse = await fetch(`${API_URL}/api/dashboard`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+        });
+        const dashboardData = await dashboardResponse.json();
+        
+        document.getElementById('stat-tables').textContent = dashboardData.data.stats.tables || 0;
+        document.getElementById('stat-products').textContent = dashboardData.data.stats.products || 0;
+        document.getElementById('stat-orders').textContent = dashboardData.data.stats.orders || 0;
+
+        // Load tables list
+        const tablesResponse = await fetch(`${API_URL}/api/tables`);
+        const tablesData = await tablesResponse.json();
+        displayTablesList(tablesData.tables);
+      } catch (error) {
+        console.error('Erro ao carregar dados do dashboard:', error);
+      }
+    }
+
+    function displayTablesList(tables) {
+      const tablesList = document.getElementById('tables-list');
+      tablesList.innerHTML = `
+        <p><strong>Tabelas disponíveis:</strong></p>
+        <ul style="list-style: none; padding: 0;">
+          ${tables.map(table => `<li style="padding: 5px 0;">📊 ${table}</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    async function executeNaturalQuery() {
+      const requirement = document.getElementById('natural-query').value.trim();
+      
+      if (!requirement) {
+        showMessage('Por favor, descreva sua consulta', 'error');
+        return;
+      }
+
+      const resultsDiv = document.getElementById('natural-results');
+      resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Gerando consulta...</div>';
+
+      try {
+        const response = await fetch(`${API_URL}/api/dashboard/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requirement })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          resultsDiv.innerHTML = `<div class="message error">${data.error}</div>`;
+          return;
+        }
+
+        displayResults(data, resultsDiv);
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="message error">Erro ao executar consulta: ${error.message}</div>`;
+      }
+    }
+
+    async function executeSQLQuery() {
+      const sql = document.getElementById('sql-query').value.trim();
+      
+      if (!sql) {
+        showMessage('Por favor, digite uma consulta SQL', 'error');
+        return;
+      }
+
+      const resultsDiv = document.getElementById('sql-results');
+      resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Executando consulta...</div>';
+
+      try {
+        const response = await fetch(`${API_URL}/api/query`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          resultsDiv.innerHTML = `<div class="message error">${data.error}</div>`;
+          return;
+        }
+
+        displayResults(data, resultsDiv);
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="message error">Erro ao executar consulta: ${error.message}</div>`;
+      }
+    }
+
+    function displayResults(data, container) {
+      let html = '';
+
+      // Show query info
+      if (data.requirement) {
+        html += `<div class="query-info"><strong>Requisição:</strong> ${data.requirement}</div>`;
+      }
+      
+      html += `<div class="query-info"><strong>SQL Gerado:</strong> <code>${data.query}</code></div>`;
+      html += `<div class="query-info"><strong>Registros encontrados:</strong> ${data.rowCount}</div>`;
+
+      // Display results table
+      if (data.data && data.data.length > 0) {
+        const headers = Object.keys(data.data[0]);
+        html += '<table class="results-table">';
+        html += '<thead><tr>';
+        headers.forEach(header => {
+          html += `<th>${header}</th>`;
+        });
+        html += '</tr></thead>';
+        html += '<tbody>';
+        
+        data.data.forEach(row => {
+          html += '<tr>';
+          headers.forEach(header => {
+            const value = row[header];
+            html += `<td>${value !== null ? value : '-'}</td>`;
+          });
+          html += '</tr>';
+        });
+        
+        html += '</tbody></table>';
+      } else {
+        html += '<div class="no-results">Nenhum resultado encontrado</div>';
+      }
+
+      container.innerHTML = html;
     }
   </script>
 </body>
